@@ -181,9 +181,19 @@ const LESSEN = {
       ["Hetzelfde of anders?", ["Onze conclusie is hetzelfde: …","Onze conclusie is anders, want …"]],
       ["Jullie conclusie", ["Wij denken dat lightproducten …","Lightproducten zijn (niet) gezonder, want …","Onze conclusie is dat …"]]
     ]
+  },
+  driehoekboterham: {
+    titel:"Conclusiemuur", een:"een conclusie", het:"jullie conclusie", Het:"Jullie conclusie", meerv:"conclusies",
+    naam:"Jullie namen (mag ook leeg)",
+    opdracht:"De driehoekboterham: wat is jullie conclusie? Is ze hetzelfde in het filmpje en in de tekst?",
+    starters:[
+      ["Wat zegt het filmpje? Wat zegt de tekst?", ["Volgens het filmpje …","Volgens de tekst …","In het filmpje zeggen ze dat …","In de tekst staat dat …"]],
+      ["Hetzelfde of anders?", ["Onze conclusie is hetzelfde: …","Onze conclusie is anders, want …"]],
+      ["Jullie conclusie", ["Wij denken dat een driehoekboterham …","Een driehoekboterham is (niet) gezond, want …","Onze conclusie is dat …"]]
+    ]
   }
 };
-const lesId = (qs.get("les")||"").toLowerCase();
+const lesId = ({boterham:"driehoekboterham"})[(qs.get("les")||"").toLowerCase()] || (qs.get("les")||"").toLowerCase();
 const L = Object.assign({titel:"Zinnenmuur", een:"een zin", het:"je zin", Het:"Je zin", meerv:"zinnen", opdracht:"", starters:[]}, LESSEN[lesId]||{});
 const sfx = LESSEN[lesId] ? "_"+lesId : "";
 document.title = L.titel;
