@@ -143,9 +143,9 @@ label{display:block;font-size:15px;color:var(--muted);margin:14px 0 6px}
 <main id="phone" class="phone hidden">
   <h1 id="tKopGsm"></h1>
   <div class="task" id="task"></div>
-  <label for="naam">Je naam (mag ook leeg)</label>
-  <input id="naam" maxlength="30" autocomplete="given-name">
-  <div id="startBox" class="hidden"><label>Drie manieren (Taalhulp 6) – tik op een begin</label><div class="starters" id="starters"></div></div>
+  <label for="naam" id="tNaam">Je naam (mag ook leeg)</label>
+  <input id="naam" maxlength="40" autocomplete="given-name">
+  <div id="startBox" class="hidden"><label id="tStart">Tik op een begin</label><div class="starters" id="starters"></div></div>
   <label for="zin" id="tVeld"></label>
   <textarea id="zin" maxlength="400"></textarea>
   <button class="send" id="send">Versturen</button>
@@ -165,10 +165,21 @@ const LESSEN = {
   advies: {
     titel:"Adviezenmuur", een:"een advies", het:"je advies", Het:"Je advies", meerv:"adviezen",
     opdracht:"Geef een goed advies over gezonde voeding.",
+    startLabel:"Drie manieren (Taalhulp 6) – tik op een begin",
     starters:[
       ["Imperatief (1 werkwoord) – instructie, streng", ["Eet …!","Drink …!","Wees voorzichtig met …","Eet maar …"]],
       ["Modaal werkwoord (2 werkwoorden) – duidelijk, neutraal", ["Je moet …","Je mag niet te veel …","Je kan beter …","Je kan misschien …"]],
       ["Zouden + modaal werkwoord (3 werkwoorden) – voorzichtig, vriendelijk", ["Je zou meer … moeten …","Je zou minder … kunnen …"]]
+    ]
+  },
+  conclusie: {
+    titel:"Conclusiemuur", een:"een conclusie", het:"jullie conclusie", Het:"Jullie conclusie", meerv:"conclusies",
+    naam:"Jullie namen (mag ook leeg)",
+    opdracht:"Lightproducten: wat is jullie conclusie? Is ze hetzelfde in het filmpje en in de tekst?",
+    starters:[
+      ["Wat zegt het filmpje? Wat zegt de tekst?", ["Volgens het filmpje …","Volgens de tekst …","In het filmpje zeggen ze dat …","In de tekst staat dat …"]],
+      ["Hetzelfde of anders?", ["Onze conclusie is hetzelfde: …","Onze conclusie is anders, want …"]],
+      ["Jullie conclusie", ["Wij denken dat lightproducten …","Lightproducten zijn (niet) gezonder, want …","Onze conclusie is dat …"]]
     ]
   }
 };
@@ -182,6 +193,7 @@ $("tKop").textContent = "Stuur "+L.het;
 $("tHowto").innerHTML = "Scan de code met je gsm, typ "+L.het+" en druk op <b>Versturen</b>.";
 $("tKopGsm").textContent = "Stuur "+L.het+" ✍️";
 $("tVeld").textContent = L.Het;
+if(L.naam) $("tNaam").textContent = L.naam;
 $("zin").placeholder = "Schrijf hier "+L.het+"…";
 $("tMijn").textContent = "Jouw verstuurde "+L.meerv;
 const store = {
@@ -235,6 +247,7 @@ if(room){
   $("task").textContent=L.opdracht;
   if(L.starters.length){
     $("startBox").classList.remove("hidden");
+    if(L.startLabel) $("tStart").textContent=L.startLabel;
     $("starters").innerHTML=L.starters.map(g=>"<div class=\"grp\">"+esc(g[0])+"</div>"+g[1].map(t=>"<button type=\"button\">"+esc(t)+"</button>").join("")).join("");
     $("starters").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return;
       const begin=b.textContent.split("…")[0];
@@ -250,7 +263,7 @@ if(room){
     btn.disabled=true; msg.className="msg"; msg.textContent="Bezig met versturen…";
     store.set("zm_naam",naam.value.trim());
     try{
-      await post(topic,{t:"zin",id:rid(10),naam:naam.value.trim().slice(0,30),zin:z.slice(0,400)});
+      await post(topic,{t:"zin",id:rid(10),naam:naam.value.trim().slice(0,40),zin:z.slice(0,400)});
       mine.push(z); store.set("zm_mine_"+room,mine); showMine();
       zin.value=""; msg.className="msg ok"; msg.textContent="Verstuurd ✓ "+L.Het+" staat op het scherm. Je mag nog "+L.een+" sturen.";
     }catch(e){ msg.className="msg err"; msg.textContent="Dat lukte niet. Controleer je internet en probeer opnieuw."; }
@@ -319,7 +332,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")$("spot").classList.
 function add(m,fresh){
   const d=parse(m); if(!d||d.t!=="zin"||!d.zin) return;
   const id=d.id||m.id; if(seen.has(id)) return; seen.add(id);
-  const it={id,zin:String(d.zin).slice(0,400),naam:String(d.naam||"").slice(0,30),time:m.time*1000,fresh};
+  const it={id,zin:String(d.zin).slice(0,400),naam:String(d.naam||"").slice(0,40),time:m.time*1000,fresh};
   if(paused&&fresh){queue.push(it);$("bPause").textContent="Pauze ("+queue.length+")";return}
   items.push(it); render();
 }
